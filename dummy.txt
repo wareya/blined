@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+if [ ! -e "$1" ]; then
+    echo "No such file `$1`, create it first with \`touch fname\` or \`echo '' > fname\`."
+    exit
+fi
