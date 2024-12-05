@@ -149,7 +149,11 @@ while true; do
         if [[ $unk == 1 ]]; then
             if [[ $fullkey == "[1" ]]; then
                 IFS= read -rsn3 -t 0.05 nukey
-                if [[ $nukey == ";5C" ]]; then # ctrl right
+                if [[ $nukey == "~" ]]; then # home
+                    col=0
+                    colmem=$col
+                    unk=0
+                elif [[ (( $nukey == ";5C" )) || (( $nukey == "C" )) ]]; then # ctrl right
                     line=${lines[row]}
                     charkind "${line:col:1}"
                     kind=$?
@@ -163,7 +167,7 @@ while true; do
                         col=$((col+1)) ; charkind "${line:col:1}" ; kind2=$?
                     done
                     colmem=$col
-                elif [[ (( $nukey == ";5D" )) && (( $col -gt 0 )) ]]; then # ctrl left
+                elif [[ (( (( $nukey == ";5D" )) || (( $nukey == "D" )) )) && (( $col -gt 0 )) ]]; then # ctrl left
                     line=${lines[row]}
                     charkind "${line:$((col-1)):1}"
                     kind=$?
