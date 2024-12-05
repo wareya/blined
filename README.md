@@ -10,7 +10,14 @@ modern: insert-based, like notepad. navigation with arrows, home, end, page-up, 
 
 ## usage
 
-`/blined.sh <filename> [-s]`
+```
+# download
+curl https://raw.githubusercontent.com/wareya/blined/refs/heads/main/blined.sh > blined.sh
+# make executable (on linux/mac os)
+chmod +x blined.sh
+# use
+./blined.sh <filename> [-s]`
+```
 
 https://github.com/user-attachments/assets/bbd1c69c-8a44-463b-8141-4f08b275740f
 
