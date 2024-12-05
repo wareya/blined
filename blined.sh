@@ -154,10 +154,12 @@ while true; do
                     charkind "${line:col:1}"
                     kind=$?
                     kind2=$kind
-                    while [[ (( $kind == $kind2 )) && (( $col -lt ${#line} )) ]] do
+                    while [[ (( $kind == $kind2 )) && (( $col -lt ${#line} )) ]]
+                    do
                         col=$((col+1)); charkind "${line:col:1}" ; kind2=$?
                     done
-                    while [[ (( $kind != 2 )) && (( $kind2 == 2 )) && (( $col -lt ${#line} )) ]] do
+                    while [[ (( $kind != 2 )) && (( $kind2 == 2 )) && (( $col -lt ${#line} )) ]]
+                    do
                         col=$((col+1)) ; charkind "${line:col:1}" ; kind2=$?
                     done
                     colmem=$col
@@ -166,10 +168,12 @@ while true; do
                     charkind "${line:$((col-1)):1}"
                     kind=$?
                     kind2=$kind
-                    while [[ (( $kind == $kind2 )) && (( $col -gt 0 )) ]] do
+                    while [[ (( $kind == $kind2 )) && (( $col -gt 0 )) ]]
+                    do
                         col=$((col-1)); charkind "${line:$((col-1)):1}" ; kind2=$?
                     done
-                    while [[ (( $kind != 2 )) && (( $kind2 == 2 )) && (( $col -gt 0 )) ]] do
+                    while [[ (( $kind != 2 )) && (( $kind2 == 2 )) && (( $col -gt 0 )) ]]
+                    do
                         col=$((col-1)) ; charkind "${line:$((col-1)):1}" ; kind2=$?
                     done
                     colmem=$col
