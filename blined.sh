@@ -97,54 +97,50 @@ while true; do
     IFS= read -rsn1 key
     
     if [[ $key == $'\e' ]]; then
-        IFS= read -rsn1 -t 0.05 kpfix
-        IFS= read -rsn1 -t 0.05 key
-        case $key in
-            '3')
-                dodel
-                ;;
-            'A')
-                row=$((row-1))
-                col=$colmem
-                offs=0
-                ;;
-            'B')
-                row=$((row+1))
-                col=$colmem
-                offs=0
-                ;;
-            '5')
-                row=$((row-50))
-                col=$colmem
-                offs=0
-                ;;
-            '6')
-                row=$((row+50))
-                col=$colmem
-                offs=0
-                ;;
-            'C')
-                col=$((col+1))
-                colmem=$col
-                ;;
-            'D')
-                col=$((col-1))
-                colmem=$col
-                ;;
-            'H')
-                col=0
-                colmem=$col
-                ;;
-            'F')
-                line=${lines[row]}
-                col=${#line}
-                colmem=$col
-                ;;
-            *) 
-                echo "Unknown key sequence: $key"
-                :
-                ;;
-        esac
+        IFS= read -rsn2 -t 0.1 key
+        if [[ $key == "[3" ]]; then
+            dodel
+        elif [[ $key == "[5" ]]; then
+            row=$((row-50))
+            col=$colmem
+            offs=0
+        elif [[ $key == "[6" ]]; then
+            row=$((row+50))
+            col=$colmem
+            offs=0
+        elif [[ $key == "[A" || $key == "OA" ]]; then
+            row=$((row-1))
+            col=$colmem
+            offs=0
+        elif [[ $key == "[B" || $key == "OB" ]]; then
+            row=$((row+1))
+            col=$colmem
+            offs=0
+        elif [[ $key == "[C" || $key == "OC" ]]; then
+            col=$((col+1))
+            colmem=$col
+        elif [[ $key == "[D" || $key == "OD" ]]; then
+            col=$((col-1))
+            colmem=$col
+        elif [[ $key == "OH" ]]; then
+            col=0
+            colmem=$col
+        elif [[ $key == "OF" ]]; then
+            line=${lines[row]}
+            col=${#line}
+            colmem=$col
+        elif [[ $key == "[1" ]]; then
+            col=0
+            colmem=$col
+        elif [[ $key == "[4" ]]; then
+            line=${lines[row]}
+            col=${#line}
+            colmem=$col
+        else
+            echo "Unknown key sequence: $key"
+            echo "Unknown key sequence: $key"
+            echo "Unknown key sequence: $key"
+        fi
     elif [[ $key == $'\x0F' ]]; then
         clear
         echo -n "Saving file..."
