@@ -130,9 +130,8 @@ while true; do
             col=${#line}
             colmem=$col
         else
-            echo "Unknown key sequence: $key"
-            echo "Unknown key sequence: $key"
-            echo "Unknown key sequence: $key"
+            #echo "Unknown key sequence: $key"
+            :
         fi
     elif [[ $key == $'\x0F' ]]; then
         clear
@@ -152,9 +151,6 @@ while true; do
         echo "File saved!"
     else
         kv=$(printf "%d" "'$key")
-        echo $kv
-        echo $kv
-        echo $kv
         if (( kv >= 0x20 && kv < 0x7E )) || (( kv == 0x0A )); then
             line=${lines[row]}
             line="${line:0:$col}$key${line:$col}"
@@ -173,7 +169,7 @@ while true; do
             col=0
             colmem=$col
             offs=0
-        elif (( kv == 127 )); then # backspace
+        elif (( kv == 127 || kv == 8 )); then # backspace
             if (( col > 0 )); then
                 line=${lines[row]}
                 line="${line:0:$(($col-1))}${line:$col}"
