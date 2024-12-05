@@ -22,8 +22,9 @@ done < "$1"
 
 if [[ "$2" != "-s" ]]; then
     printf "Welcome to \033[32mblined\033[0m, the pure bash line-based text editor!\n"
-    printf "This is an \033[32minsertion mode\033[0m text editor: you move around with arrow keys and then type stuff.\n"
-    printf "blined is primarily meant for \033[30m\033[41memergency usage\033[0m, and lacks most common text editor features.\n"
+    printf "This is an \033[32minsertion mode\033[0m text editor: you move around with arrow keys and start typing.\n"
+    printf "Home, end, pgup, pgdn, backspace, and del should work. If not, please open a bug report.\n"
+    printf "blined is mainly meant for \033[30m\033[41memergency usage\033[0m, and lacks most common text editor features.\n"
     printf "Ctrl+o will save the file \033[30m\033[41mimmediately\033[0m, with no prompt or warning.\n"
     printf "Key combinations other than ctrl+o are \033[30m\033[41mnot supported\033[0m. Use ctrl+c to exit.\n"
     echo ""
@@ -97,41 +98,44 @@ while true; do
     IFS= read -rsn1 key
     
     if [[ $key == $'\e' ]]; then
-        IFS= read -rsn2 -t 0.1 key
-        if [[ $key == "[3" ]]; then
-            dodel
-        elif [[ $key == "[5" ]]; then
-            row=$((row-50))
-            col=$colmem
-            offs=0
-        elif [[ $key == "[6" ]]; then
-            row=$((row+50))
-            col=$colmem
-            offs=0
-        elif [[ $key == "[A" || $key == "OA" ]]; then
-            row=$((row-1))
-            col=$colmem
-            offs=0
-        elif [[ $key == "[B" || $key == "OB" ]]; then
-            row=$((row+1))
-            col=$colmem
-            offs=0
-        elif [[ $key == "[C" || $key == "OC" ]]; then
-            col=$((col+1))
-            colmem=$col
-        elif [[ $key == "[D" || $key == "OD" ]]; then
-            col=$((col-1))
-            colmem=$col
-        elif [[ $key == "[H" || $key == "OH" || $key == "[1" ]]; then
-            col=0
-            colmem=$col
-        elif [[ $key == "[F" || $key == "OF" || $key == "[4" ]]; then
-            line=${lines[row]}
-            col=${#line}
-            colmem=$col
-        else
-            #echo "Unknown key sequence: $key"
-            :
+        IFS= read -rsn1 -t 0.05 pfkey
+        IFS= read -rsn1 -t 0.05 key
+        if [[ $pfkey == "O" || $pfkey == "[" ]]; then
+            if [[ $key == "3" ]]; then
+                dodel
+            elif [[ $key == "5" ]]; then
+                row=$((row-50))
+                col=$colmem
+                offs=0
+            elif [[ $key == "6" ]]; then
+                row=$((row+50))
+                col=$colmem
+                offs=0
+            elif [[ $key == "A" ]]; then
+                row=$((row-1))
+                col=$colmem
+                offs=0
+            elif [[ $key == "B" ]]; then
+                row=$((row+1))
+                col=$colmem
+                offs=0
+            elif [[ $key == "C" ]]; then
+                col=$((col+1))
+                colmem=$col
+            elif [[ $key == "D" ]]; then
+                col=$((col-1))
+                colmem=$col
+            elif [[ $key == "H" || $key == "1" ]]; then
+                col=0
+                colmem=$col
+            elif [[ $key == "F" || $key == "4" ]]; then
+                line=${lines[row]}
+                col=${#line}
+                colmem=$col
+            else
+                #echo "Unknown key sequence: $key"
+                :
+            fi
         fi
     elif [[ $key == $'\x0F' ]]; then
         clear
