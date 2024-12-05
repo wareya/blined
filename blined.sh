@@ -122,17 +122,10 @@ while true; do
         elif [[ $key == "[D" || $key == "OD" ]]; then
             col=$((col-1))
             colmem=$col
-        elif [[ $key == "OH" ]]; then
+        elif [[ $key == "OH" || $key == "[1" ]]; then
             col=0
             colmem=$col
-        elif [[ $key == "OF" ]]; then
-            line=${lines[row]}
-            col=${#line}
-            colmem=$col
-        elif [[ $key == "[1" ]]; then
-            col=0
-            colmem=$col
-        elif [[ $key == "[4" ]]; then
+        elif [[ $key == "OF" || $key == "[4" ]]; then
             line=${lines[row]}
             col=${#line}
             colmem=$col
@@ -159,6 +152,9 @@ while true; do
         echo "File saved!"
     else
         kv=$(printf "%d" "'$key")
+        echo $kv
+        echo $kv
+        echo $kv
         if (( kv >= 0x20 && kv < 0x7E )) || (( kv == 0x0A )); then
             line=${lines[row]}
             line="${line:0:$col}$key${line:$col}"
