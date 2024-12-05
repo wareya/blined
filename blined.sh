@@ -54,22 +54,16 @@ printify() {
         columns=$(stty size | cut -d" " -f2)
     fi
     
-    clear
-    
     pfrow=$1
     pfcol=$2
     info="$(printf '%s' '(line ' $((pfrow+1)) ')')"
-    printf "\033[90m%s\033[0m" "$info"
     line=${lines[pfrow]}
     
     if [ -v DUMBMODE ]; then
-        echo -en "${line:0:pfcol}"
-        printf "\033[7m%s\033[0m" "${line:pfcol:1}"
-        echo -en "${line:$((pfcol+1)):$((${#line}-1))}"
+        printf "\33[2K\r\033[90m%s\033[0m%s\033[7m%s\033[0m%s" "$info" "${line:0:pfcol}" "${line:pfcol:1}" "${line:$((pfcol+1)):$((${#line}-1))}"
     else
         line=${line:offs:$((columns-${#info}-1))}
-        printf "%s" "${line}"
-        printf "\033[%dG" $((${#info}+col+1-offs))
+        printf "\33[2K\r\033[90m%s\033[0m%s\033[%dG" "$info" "${line}" "$((${#info}+col+1-offs))"
     fi
 }
 
@@ -92,6 +86,17 @@ dodel() {
     fi
 }
 
+charkind() {
+    cv=$(printf "%d" "'$1")
+    if (( cv >= 0x30 && cv <= 0x39 )) || (( cv >= 0x41 && cv <= 0x5A )) || (( cv >= 0x61 && cv <= 0x7A )); then
+        return 0
+    elif (( cv >= 0x21 )); then
+        return 1
+    else
+        return 2
+    fi
+}
+
 printify 0 0
 
 while true; do
@@ -100,41 +105,75 @@ while true; do
     if [[ $key == $'\e' ]]; then
         IFS= read -rsn1 -t 0.05 pfkey
         IFS= read -rsn1 -t 0.05 key
+        fullkey="$pfkey$key"
+        unk=0
         if [[ $pfkey == "O" || $pfkey == "[" ]]; then
             if [[ $key == "3" ]]; then
                 dodel
-            elif [[ $key == "5" ]]; then
+            elif [[ $key == "5" ]]; then # pgdn
                 row=$((row-50))
                 col=$colmem
                 offs=0
-            elif [[ $key == "6" ]]; then
+            elif [[ $key == "6" ]]; then # pgup
                 row=$((row+50))
                 col=$colmem
                 offs=0
-            elif [[ $key == "A" ]]; then
+            elif [[ $key == "A" ]]; then # up
                 row=$((row-1))
                 col=$colmem
                 offs=0
-            elif [[ $key == "B" ]]; then
+            elif [[ $key == "B" ]]; then # down
                 row=$((row+1))
                 col=$colmem
                 offs=0
-            elif [[ $key == "C" ]]; then
+            elif [[ $key == "C" ]]; then # right
                 col=$((col+1))
                 colmem=$col
-            elif [[ $key == "D" ]]; then
+            elif [[ $key == "D" ]]; then # left
                 col=$((col-1))
                 colmem=$col
-            elif [[ $key == "H" || $key == "1" ]]; then
-                col=0
-                colmem=$col
-            elif [[ $key == "F" || $key == "4" ]]; then
+            elif [[ $key == "F" || $key == "4" ]]; then # end
                 line=${lines[row]}
                 col=${#line}
                 colmem=$col
             else
-                #echo "Unknown key sequence: $key"
+                unk=1
                 :
+            fi
+        fi
+        if [[ $fullkey == "[H" || $fullkey == "OH" || $fullkey == "O1" ]]; then # home
+            col=0
+            colmem=$col
+            unk=0
+        fi
+        if [[ $unk == 1 ]]; then
+            if [[ $fullkey == "[1" ]]; then
+                IFS= read -rsn3 -t 0.05 nukey
+                if [[ $nukey == ";5C" ]]; then # ctrl right
+                    line=${lines[row]}
+                    charkind "${line:col:1}"
+                    kind=$?
+                    kind2=$kind
+                    while [[ (( $kind == $kind2 )) && (( $col -lt ${#line} )) ]] do
+                        col=$((col+1)); charkind "${line:col:1}" ; kind2=$?
+                    done
+                    while [[ (( $kind != 2 )) && (( $kind2 == 2 )) && (( $col -lt ${#line} )) ]] do
+                        col=$((col+1)) ; charkind "${line:col:1}" ; kind2=$?
+                    done
+                    colmem=$col
+                elif [[ (( $nukey == ";5D" )) && (( $col -gt 0 )) ]]; then # ctrl left
+                    line=${lines[row]}
+                    charkind "${line:$((col-1)):1}"
+                    kind=$?
+                    kind2=$kind
+                    while [[ (( $kind == $kind2 )) && (( $col -gt 0 )) ]] do
+                        col=$((col-1)); charkind "${line:$((col-1)):1}" ; kind2=$?
+                    done
+                    while [[ (( $kind != 2 )) && (( $kind2 == 2 )) && (( $col -gt 0 )) ]] do
+                        col=$((col-1)) ; charkind "${line:$((col-1)):1}" ; kind2=$?
+                    done
+                    colmem=$col
+                fi
             fi
         fi
     elif [[ $key == $'\x0F' ]]; then
