@@ -25,7 +25,7 @@ if [[ "$2" != "-s" ]]; then
     printf "This is an \033[32minsertion mode\033[0m text editor: you move around with arrow keys and then type stuff.\n"
     printf "blined is primarily meant for \033[30m\033[41memergency usage\033[0m, and lacks most common text editor features.\n"
     printf "Ctrl+o will save the file \033[30m\033[41mimmediately\033[0m, with no prompt or warning.\n"
-    printf "Key combinations other than ctrl+o are \033[30m\033[41mnot supported\033[0m.\n"
+    printf "Key combinations other than ctrl+o are \033[30m\033[41mnot supported\033[0m. Use ctrl+c to exit.\n"
     echo ""
     printf "You are currently editing:\n"
     echo "$1"
