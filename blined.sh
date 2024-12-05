@@ -141,7 +141,7 @@ while true; do
                 colmem=$col
                 ;;
             *) 
-                #echo "Unknown key sequence: $key"
+                echo "Unknown key sequence: $key"
                 :
                 ;;
         esac
@@ -176,7 +176,7 @@ while true; do
             
             lines[row]=$line1
             row=$((row+1))
-            lines=("${lines[@]:0:$row}" "$line2" "${array[@]:$row}")
+            lines=("${lines[@]:0:$row}" "$line2" "${lines[@]:$row}")
             
             col=0
             colmem=$col
@@ -199,7 +199,6 @@ while true; do
                 
                 col=${#line1}
                 colmem=$col
-                
             fi
         fi
     fi
