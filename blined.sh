@@ -129,19 +129,18 @@ while true; do
             elif [[ $key == "C" ]]; then # right
                 col=$((col+1))
                 colmem=$col
-                unk=0
             elif [[ $key == "D" ]]; then # left
                 col=$((col-1))
                 colmem=$col
-                unk=0
             elif [[ $key == "F" || $key == "4" ]]; then # end
                 line=${lines[row]}
                 col=${#line}
                 colmem=$col
             else
                 unk=1
-                :
             fi
+        else
+            unk=1
         fi
         if [[ $fullkey == "[H" || $fullkey == "OH" || $fullkey == "O1" ]]; then # home
             col=0
@@ -149,7 +148,7 @@ while true; do
             unk=0
         fi
         if [[ $unk == 1 ]]; then
-            if [[ $fullkey == "[1" || $fullkey == "[\n" || $fullkey == "OC" || $fullkey == "OD" ]]; then
+            if [[ $fullkey == "[1" || $fullkey == $'\e[' || $fullkey == "OC" || $fullkey == "OD" ]]; then
                 IFS= read -rsn3 -t 0.05 nukey
                 if [[ $nukey == "~" ]]; then # home
                     col=0
