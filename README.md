@@ -8,7 +8,9 @@ fast-ish: tries to use bash builtins whenever possible
 
 modern: insert-based, like notepad. navigation with arrows, home, end, page-up, and page-down all works. backspace and delete both work, even at the starts/ends of lines.
 
-![image](https://github.com/user-attachments/assets/101d9a35-136f-449b-9775-f44166cb79a9)
+written in 100% pure bash. no ncurses etc needed. tries to use terminal info to support horizontal scrolling, but can be disabled by defining the `DUMBMODE` environment variable to run on even more-broken systems.
+
+![image](https://github.com/user-attachments/assets/f91924e6-4b42-4b87-a4a1-d0c0a0039aff)
 
 ## usage
 
@@ -21,7 +23,8 @@ chmod +x blined.sh
 ./blined.sh <filename> [-s]`
 ```
 
-https://github.com/user-attachments/assets/bbd1c69c-8a44-463b-8141-4f08b275740f
+https://github.com/user-attachments/assets/9018f18b-5277-44fb-ba27-5efb49e8e70f
+
 
 ## license
 
