@@ -5,8 +5,25 @@ import sys
 import select
 import time
 import signal
+import platform
 
 def main():
+    colorize = True
+    system_platform = platform.system().lower()
+    if system_platform == 'windows' and not 'MSYSTEM' in os.environ:
+        colorize = False
+            
+    def printline(text):
+        if colorize:
+            text = text.replace("[g]", "\033[32m")
+            text = text.replace("[R]", "\033[30m\033[41m")
+            text = text.replace("[/]", "\033[0m")
+        else:
+            text = text.replace("[g]", "")
+            text = text.replace("[R]", "")
+            text = text.replace("[/]", "")
+        print(text)
+    
     def disable_stdin_echo():
         old_settings=None
         try:
@@ -61,12 +78,12 @@ def main():
             lines.append(line.rstrip('\n').rstrip('\r'))
 
     if flag != '-s':
-        print("Welcome to \033[32mplined\033[0m, the pure Python line-based text editor!")
-        print("This is an \033[32minsertion mode\033[0m text editor: you move around with arrow keys and start typing.")
-        print("Home, end, pgup, pgdn, backspace, and del should work. If not, please open a bug report.")
-        print("plined is mainly meant for \033[30m\033[41memergency usage\033[0m, and lacks most common text editor features.")
-        print("Ctrl+o will save the file \033[30m\033[41mimmediately\033[0m, with no prompt or warning.")
-        print("Key combinations other than ctrl+o are \033[30m\033[41mnot supported\033[0m. Use ctrl+c to exit.")
+        printline("Welcome to [g]plined[/], the pure Python line-based text editor!")
+        printline("This is an [g]insertion mode[/] text editor: you move around with arrow keys and start typing.")
+        printline("Home, end, pgup, pgdn, backspace, and del should work. If not, please open a bug report.")
+        printline("plined is mainly meant for [R]emergency usage[/], and lacks most common text editor features.")
+        printline("Ctrl+o will save the file [R]immediately[/], with no prompt or warning.")
+        printline("Key combinations other than ctrl+o are [R]not supported[/]. Use ctrl+c to exit.")
         print("")
         print(f"You are currently editing:\n{fname}")
         print("")
@@ -80,7 +97,12 @@ def main():
     columns = 72
 
     def clear():
-        print("\033[2K\r", end='')
+        if colorize:
+            print("\033[2K\r", end='')
+        else:
+            print("\r", end='')
+            print(" " * columns, end='')
+            print("\r", end='')
 
     def printify(pfrow, pfcol):
         nonlocal info
@@ -90,12 +112,19 @@ def main():
         if secs != time.time():
             secs = time.time()
             columns = os.get_terminal_size().columns
+            if not colorize:
+                columns -= 1
 
         info = f'(line {pfrow+1})'
         line = lines[pfrow]
 
         line = line[offs:columns - len(info) - 1]
-        print(f"\033[2K\r\033[90m{info}\033[0m{line}\033[{len(info)+col+1-offs}G", end='', flush=True)
+        if colorize:
+            print(f"\033[2K\r\033[90m{info}\033[0m{line}\033[{len(info)+col+1-offs}G", end='', flush=True)
+        else:
+            line1 = line[:col]
+            line2 = line[col:]
+            print("\r" + (" " * columns) + f"\r{info}{line1}▄{line2}", end='', flush=True)
 
     def dodel():
         nonlocal col, row, lines
@@ -126,8 +155,8 @@ def main():
     def read_input(n, timeout=0.01):
         nonlocal rawdata
         start_time = time.time()
-        data = ""
         
+        data = ""
         while len(data) < n and rawdata != "":
             data += rawdata[0]
             rawdata = rawdata[1:]
@@ -135,10 +164,12 @@ def main():
             return data
         
         try:
-            while len(rawdata) < n and timeout - (time.time() - start_time) > 0:
-                r, _, _ = select.select([sys.stdin], [], [], timeout - (time.time() - start_time))
+            wait = timeout - (time.time() - start_time)
+            while len(rawdata) < n and wait > 0:
+                r, _, _ = select.select([sys.stdin], [], [], wait)
                 if r:
                     rawdata += sys.stdin.read()
+                wait = timeout - (time.time() - start_time)
         except KeyboardInterrupt:
             raise KeyboardInterrupt
         except:
@@ -147,7 +178,8 @@ def main():
             while len(rawdata) < n and timeout - (time.time() - start_time) > 0:
                 if msvcrt.kbhit():
                     rawdata += ''.join([chr(x) for x in msvcrt.getch()])
-                time.sleep(0.001)
+                else:
+                    time.sleep(0.001)
         
         while len(data) < n and rawdata != "":
             data += rawdata[0]
@@ -165,11 +197,12 @@ def main():
         printify(0, 0)
 
         while True:
-            key = read_single_char()
+            #key = read_single_char()
+            key = read_input(1, 1)
             
             startcol = col
             startrow = row
-            if key == '\x1b' or key == '\x00': # Escape sequence
+            if key == '\x1b' or key == '\x00' or key == '\xE0': # Escape sequence
                 origkey = key
                 pfkey = read_input(1)
                 key = read_input(1)
@@ -199,7 +232,7 @@ def main():
                         which = "end"
                 if fullkey == "[H" or fullkey == "OH" or fullkey == "O1":
                     which = "home"
-                if origkey == "\x00":
+                if origkey == "\x00" or origkey == "\xE0":
                     if pfkey == "\x53":  # delete
                         which = "delete"
                     elif pfkey == "\x49":  # pgdn
@@ -279,7 +312,7 @@ def main():
                 elif startcol != col:
                     colmem = col
                 
-                dummyvar = read_input(9)
+                read_input(9)
                 
             elif key == '\x0F':  # ctrl+o
                 clear()
@@ -289,7 +322,7 @@ def main():
                         f.write(f"{line}{lf}")
                 clear()
                 print("File saved!")
-            else:
+            elif key != "":
                 kv = ord(key)
                 if 0x20 <= kv < 0x7E:
                     line = lines[row]
