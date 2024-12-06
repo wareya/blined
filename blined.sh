@@ -1,20 +1,19 @@
 #!/usr/bin/env bash
 
-if [ ! -s "$1" ]; then
-    echo "Usage: ./blined.sh <filename> [-s]"
-    exit
+main() {
+if [ -z "$1" ]; then
+    echo "Usage: ./blined.sh <filename> [-s]"; return
 fi
 
 if [ ! -e "$1" ]; then
-    echo "No such file `$1`, create it first with \`touch fname\` or \`echo '' > fname\`."
-    exit
+    echo "No such file \`$1\`, create it first with \`touch fname\` or \`echo '' > fname\`."; return
 fi
 
-iscrlf=0
+lf=$'\n'
 lines=()
 while IFS= read -r line || [[ -n "$line" ]]; do
     if [[ ${line} == *$'\r'* ]]; then
-        iscrlf=1
+        lf=$'\r\n'
     fi
     line="${line%$'\r'}"
     lines+=("$line")
@@ -86,9 +85,9 @@ dodel() {
     fi
 }
 
-charkind() {
+charkind() { # used for ctrl+left/right word-skipping navigation
     cv=$(printf "%d" "'$1")
-    if (( cv >= 0x30 && cv <= 0x39 )) || (( cv >= 0x41 && cv <= 0x5A )) || (( cv >= 0x61 && cv <= 0x7A )); then
+    if (( cv >= 0x30 && cv <= 0x39 )) || (( cv >= 0x41 && cv <= 0x5A )) || (( cv >= 0x61 && cv <= 0x7A )) || (( cv > 0x7F )); then
         return 0
     elif (( cv >= 0x21 )); then
         return 1
@@ -142,18 +141,15 @@ while true; do
                 IFS= read -rsn3 -t 0.05 nukey
                 if [[ $nukey == "~" ]]; then # home
                     col=0
-                    unk=0
                 elif [[ (( $nukey == ";5C" )) || (( $nukey == "C" )) ]]; then # ctrl right / alt right
                     line=${lines[row]}
                     charkind "${line:col:1}"
                     kind=$?
                     kind2=$kind
-                    while [[ (( $kind == $kind2 )) && (( $col -lt ${#line} )) ]]
-                    do
-                        col=$((col+1)); charkind "${line:col:1}" ; kind2=$?
+                    while [[ (( $kind == $kind2 )) && (( $col -lt ${#line} )) ]]; do # move until different kind is hit
+                        col=$((col+1)) ; charkind "${line:col:1}" ; kind2=$?
                     done
-                    while [[ (( $kind != 2 )) && (( $kind2 == 2 )) && (( $col -lt ${#line} )) ]]
-                    do
+                    while [[ (( $kind != 2 )) && (( $kind2 == 2 )) && (( $col -lt ${#line} )) ]]; do # skip repeating spaces if didn't start on space
                         col=$((col+1)) ; charkind "${line:col:1}" ; kind2=$?
                     done
                 elif [[ (( (( $nukey == ";5D" )) || (( $nukey == "D" )) )) && (( $col -gt 0 )) ]]; then # ctrl left / alt left
@@ -161,12 +157,10 @@ while true; do
                     charkind "${line:$((col-1)):1}"
                     kind=$?
                     kind2=$kind
-                    while [[ (( $kind == $kind2 )) && (( $col -gt 0 )) ]]
-                    do
-                        col=$((col-1)); charkind "${line:$((col-1)):1}" ; kind2=$?
+                    while [[ (( $kind == $kind2 )) && (( $col -gt 0 )) ]]; do # move until different kind is hit
+                        col=$((col-1)) ; charkind "${line:$((col-1)):1}" ; kind2=$?
                     done
-                    while [[ (( $kind != 2 )) && (( $kind2 == 2 )) && (( $col -gt 0 )) ]]
-                    do
+                    while [[ (( $kind != 2 )) && (( $kind2 == 2 )) && (( $col -gt 0 )) ]]; do # skip repeating spaces if didn't start on space
                         col=$((col-1)) ; charkind "${line:$((col-1)):1}" ; kind2=$?
                     done
                 fi
@@ -182,16 +176,10 @@ while true; do
         clear
         echo -n "Saving file..."
         
-        > "$1"
-        if (( iscrlf == 1 )); then
-            for line in "${lines[@]}"; do
-                printf "%s\r\n" "$line" >> "$1"
-            done
-        else
-            for line in "${lines[@]}"; do
-                echo "$line" >> "$1"
-            done
-        fi
+        > "$1" # clear output file
+        for line in "${lines[@]}"; do # write each line to it
+            printf "%s$s" "$line" "$lf" >> "$1"
+        done
         clear
         echo "File saved!"
     else
@@ -238,8 +226,7 @@ while true; do
     
     if [[ $row -lt 0 ]]; then
         row=0
-    fi
-    if [[ $row -ge ${#lines[@]} ]]; then
+    elif [[ $row -ge ${#lines[@]} ]]; then
         row=$((${#lines[@]}))
     fi
     
@@ -247,19 +234,19 @@ while true; do
     
     if [[ $col -ge ${#line} ]]; then
         col=$((${#line}))
-    fi
-    if [[ $col -lt 0 ]]; then
+    elif [[ $col -lt 0 ]]; then
         col=0
     fi
     
-    while [[ $(($col - offs)) -ge $((columns-${#info}-1)) ]]
-    do
+    while [[ $(($col - offs)) -ge $((columns-${#info}-1)) ]]; do
         offs=$((offs+1))
     done
-    while [[ $col -lt $offs ]]
-    do
+    while [[ $col -lt $offs ]]; do
         offs=$((offs-1))
     done
     
     printify row col
 done
+}
+
+main "$@"
