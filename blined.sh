@@ -17,7 +17,8 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         lf=$'\r\n'
     fi
     line="${line%$'\r'}"
-    lines+=("$line")
+    #lines+=("$line")
+    lines[${#lines[*]}]="${line%$'\r'}"
 done < "$1"
 
 if [[ "$2" != "-s" ]]; then
@@ -100,6 +101,8 @@ charkind() { # used for ctrl+left/right word-skipping navigation
     fi
 }
 
+stty -echo
+
 printify 0 0
 
 while true; do
@@ -108,8 +111,8 @@ while true; do
     startcol=$col
     startrow=$row
     if [[ $key == $'\e' ]]; then
-        IFS= read -rsn1 -t 0.05 pfkey
-        IFS= read -rsn1 -t 0.05 key
+        IFS= read -rsn1 -t 0.01 pfkey
+        IFS= read -rsn1 -t 0.01 key
         fullkey="$pfkey$key"
         unk=0
         if [[ $pfkey == "O" || $pfkey == "[" ]]; then
@@ -142,7 +145,7 @@ while true; do
         fi
         if [[ $unk == 1 ]]; then
             if [[ $fullkey == "[1" || $fullkey == $'\e[' || $fullkey == "OC" || $fullkey == "OD" ]]; then
-                IFS= read -rsn3 -t 0.05 nukey
+                IFS= read -rsn3 -t 0.01 nukey
                 if [[ $nukey == "~" ]]; then # home
                     col=0
                 elif [[ ( $nukey == ";5C" ) || ( $nukey == "C" ) ]]; then # ctrl right / alt right
@@ -176,6 +179,7 @@ while true; do
         elif [[ $startcol -ne $col ]]; then
             colmem=$col
         fi
+        IFS= read -rsn9 -t 0.01 dummyvar # chomp any stray escape characters before they get to text input
     elif [[ $key == $'\x0F' ]]; then
         clear
         echo -n "Saving file..."
