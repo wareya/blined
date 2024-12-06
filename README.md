@@ -25,6 +25,19 @@ chmod +x blined.sh
 
 https://github.com/user-attachments/assets/9018f18b-5277-44fb-ba27-5efb49e8e70f
 
+## installation on systems with no network access or shared filesystem, but with working remote keyboard input
+
+e.g. busted KVMs, VPS interfaces, or virtual machines, where you can "paste" (or emulate a "paste")
+
+```
+cat << 'EOFSIGIL' > blined.sh
+insert contents of blined.sh here
+insert contents of blined.sh here
+insert contents of blined.sh here
+EOFSIGIL
+```
+
+then `chmod +x blined.sh` and so on
 
 ## license
 
