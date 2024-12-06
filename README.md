@@ -1,6 +1,8 @@
 # blined
 
-blined is a very small line-based text editor written in pure bash, intended mainly for emergency or system rescue situations, when text editors are inaccessible or broken but the shell is not. blined stands for "bash line editor".
+**blined** is a very small line-based text editor written in pure bash, intended mainly for emergency or system rescue situations, when text editors are inaccessible or broken but the shell is not. blined stands for "bash line editor".
+
+there's also a python version, **plined**, for systems that somehow have a python 3 interpreter but no bash shell.
 
 small: approximately 200 lines of code
 
