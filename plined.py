@@ -202,9 +202,9 @@ def main():
                 if origkey == "\x00":
                     if pfkey == "\x53":  # delete
                         which = "delete"
-                    elif pfkey == "\x51":  # pgdn
+                    elif pfkey == "\x49":  # pgdn
                         which = "pgdn"
-                    elif pfkey == "\x49":  # pgup
+                    elif pfkey == "\x51":  # pgup
                         which = "pgup"
                     elif pfkey == "\x48":  # up
                         which = "up"
