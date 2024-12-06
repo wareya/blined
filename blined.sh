@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 
+fname="$1"
+flag="$2"
+
 main() {
-if [ -z "$1" ]; then
+if [ -z "$fname" ]; then
     echo "Usage: ./blined.sh <filename> [-s]"; return
 fi
 
-if [ ! -e "$1" ]; then
-    echo "No such file \`$1\`, create it first with \`touch fname\` or \`echo '' > fname\`."; return
+if [ ! -e "$fname" ]; then
+    echo "No such file \`$fname\`, create it first with \`touch fname\` or \`echo '' > fname\`."; return
 fi
 
 lf=$'\n'
@@ -19,9 +22,9 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     line="${line%$'\r'}"
     #lines+=("$line")
     lines[${#lines[*]}]="${line%$'\r'}"
-done < "$1"
+done < "$fname"
 
-if [[ "$2" != "-s" ]]; then
+if [[ "$flag" != "-s" ]]; then
     printf "Welcome to \033[32mblined\033[0m, the pure bash line-based text editor!\n"
     printf "This is an \033[32minsertion mode\033[0m text editor: you move around with arrow keys and start typing.\n"
     printf "Home, end, pgup, pgdn, backspace, and del should work. If not, please open a bug report.\n"
@@ -30,7 +33,7 @@ if [[ "$2" != "-s" ]]; then
     printf "Key combinations other than ctrl+o are \033[30m\033[41mnot supported\033[0m. Use ctrl+c to exit.\n"
     echo ""
     printf "You are currently editing:\n"
-    echo "$1"
+    echo "$fname"
     echo ""
 fi
 
@@ -48,6 +51,9 @@ clear() {
 }
 
 printify() {
+    pfrow=$1
+    pfcol=$2
+    
     if [ -v DUMBMODE ]; then
         :
     elif [[ $secs -ne $SECONDS ]]; then
@@ -55,8 +61,6 @@ printify() {
         columns=$(stty size | cut -d" " -f2)
     fi
     
-    pfrow=$1
-    pfcol=$2
     info="$(printf '%s' '(line ' $((pfrow+1)) ')')"
     line=${lines[pfrow]}
     
@@ -184,9 +188,9 @@ while true; do
         clear
         echo -n "Saving file..."
         
-        > "$1" # clear output file
+        > "$fname" # clear output file
         for line in "${lines[@]}"; do # write each line to it
-            printf "%s$s" "$line" "$lf" >> "$1"
+            printf "%s$s" "$line" "$lf" >> "$fname"
         done
         clear
         echo "File saved!"
@@ -255,6 +259,6 @@ while true; do
     
     printify row col
 done
-}
+} # main
 
 main "$@"
