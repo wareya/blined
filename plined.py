@@ -11,6 +11,7 @@ def main():
         old_settings=None
         try:
             import termios
+            import tty
             os.system("stty -ixon")
             fd = sys.stdin.fileno()
             old_settings = termios.tcgetattr(fd)
@@ -18,6 +19,7 @@ def main():
             new_settings[3] = new_settings[3] & ~termios.ECHO
             new_settings[1] = new_settings[1] & ~termios.IXON
             termios.tcsetattr(fd, termios.TCSADRAIN, new_settings)
+            tty.setcbreak(fd)
         except: pass
         return old_settings
 
@@ -228,7 +230,7 @@ def main():
                 if which == "":
                     if fullkey == "[1" or fullkey == '\x1b[' or fullkey == "OC" or fullkey == "OD":
                         nukey = read_input(3)
-                        if nukey == "~":
+                        if nukey == "~" or nukey == "":
                             which = "home"
                         elif nukey == ";5C" or nukey == "C":
                             which = "ctrlright"
