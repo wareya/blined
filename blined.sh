@@ -10,7 +10,8 @@ if [ ! -e "$1" ]; then
 fi
 
 lf=$'\n'
-lines=()
+#lines=()
+set -A lines
 while IFS= read -r line || [[ -n "$line" ]]; do
     if [[ ${line} == *$'\r'* ]]; then
         lf=$'\r\n'
@@ -86,6 +87,9 @@ dodel() {
 }
 
 charkind() { # used for ctrl+left/right word-skipping navigation
+    if [[ "$1" == "" ]]; then
+        return 2
+    fi
     cv=$(printf "%d" "'$1")
     if (( cv >= 0x30 && cv <= 0x39 )) || (( cv >= 0x41 && cv <= 0x5A )) || (( cv >= 0x61 && cv <= 0x7A )) || (( cv > 0x7F )); then
         return 0
@@ -141,26 +145,26 @@ while true; do
                 IFS= read -rsn3 -t 0.05 nukey
                 if [[ $nukey == "~" ]]; then # home
                     col=0
-                elif [[ (( $nukey == ";5C" )) || (( $nukey == "C" )) ]]; then # ctrl right / alt right
+                elif [[ ( $nukey == ";5C" ) || ( $nukey == "C" ) ]]; then # ctrl right / alt right
                     line=${lines[row]}
                     charkind "${line:col:1}"
                     kind=$?
                     kind2=$kind
-                    while [[ (( $kind == $kind2 )) && (( $col -lt ${#line} )) ]]; do # move until different kind is hit
+                    while [[ ( $kind == $kind2 ) && ( $col -lt ${#line} ) ]]; do # move until different kind is hit
                         col=$((col+1)) ; charkind "${line:col:1}" ; kind2=$?
                     done
-                    while [[ (( $kind != 2 )) && (( $kind2 == 2 )) && (( $col -lt ${#line} )) ]]; do # skip repeating spaces if didn't start on space
+                    while [[ ( $kind != 2 ) && ( $kind2 == 2 ) && ( $col -lt ${#line} ) ]]; do # skip repeating spaces if didn't start on space
                         col=$((col+1)) ; charkind "${line:col:1}" ; kind2=$?
                     done
-                elif [[ (( (( $nukey == ";5D" )) || (( $nukey == "D" )) )) && (( $col -gt 0 )) ]]; then # ctrl left / alt left
+                elif [[ ( ( $nukey == ";5D" ) || ( $nukey == "D" ) ) && ( $col -gt 0 ) ]]; then # ctrl left / alt left
                     line=${lines[row]}
                     charkind "${line:$((col-1)):1}"
                     kind=$?
                     kind2=$kind
-                    while [[ (( $kind == $kind2 )) && (( $col -gt 0 )) ]]; do # move until different kind is hit
+                    while [[ ( $kind == $kind2 ) && ( $col -gt 0 ) ]]; do # move until different kind is hit
                         col=$((col-1)) ; charkind "${line:$((col-1)):1}" ; kind2=$?
                     done
-                    while [[ (( $kind != 2 )) && (( $kind2 == 2 )) && (( $col -gt 0 )) ]]; do # skip repeating spaces if didn't start on space
+                    while [[ ( $kind != 2 ) && ( $kind2 == 2 ) && ( $col -gt 0 ) ]]; do # skip repeating spaces if didn't start on space
                         col=$((col-1)) ; charkind "${line:$((col-1)):1}" ; kind2=$?
                     done
                 fi
