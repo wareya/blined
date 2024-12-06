@@ -281,7 +281,7 @@ def main():
                 
                 dummyvar = read_input(9)
                 
-            elif key == '\x0F':  # Ctrl+o
+            elif key == '\x0F':  # ctrl+o
                 clear()
                 print("Saving file...", end="")
                 with open(fname, 'w') as f:

@@ -50,6 +50,14 @@ insert contents of blined.sh here
 EOFSIGIL
 ```
 
+alternatively, if the above doesn't work, but `awk` is available on your system:
+
+```
+./bootstrap.awk > blined.sh
+<paste the contents of blined.sh>
+<hit CTRL+D>
+```
+
 then `chmod +x blined.sh` and so on
 
 ## license
