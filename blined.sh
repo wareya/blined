@@ -102,6 +102,8 @@ printify 0 0
 while true; do
     IFS= read -rsn1 key
     
+    startcol=$col
+    startrow=$row
     if [[ $key == $'\e' ]]; then
         IFS= read -rsn1 -t 0.05 pfkey
         IFS= read -rsn1 -t 0.05 key
@@ -112,30 +114,19 @@ while true; do
                 dodel
             elif [[ $key == "5" ]]; then # pgdn
                 row=$((row-50))
-                col=$colmem
-                offs=0
             elif [[ $key == "6" ]]; then # pgup
                 row=$((row+50))
-                col=$colmem
-                offs=0
             elif [[ $key == "A" ]]; then # up
                 row=$((row-1))
-                col=$colmem
-                offs=0
             elif [[ $key == "B" ]]; then # down
                 row=$((row+1))
-                col=$colmem
-                offs=0
             elif [[ $key == "C" ]]; then # right
                 col=$((col+1))
-                colmem=$col
             elif [[ $key == "D" ]]; then # left
                 col=$((col-1))
-                colmem=$col
             elif [[ $key == "F" || $key == "4" ]]; then # end
                 line=${lines[row]}
                 col=${#line}
-                colmem=$col
             else
                 unk=1
             fi
@@ -144,7 +135,6 @@ while true; do
         fi
         if [[ $fullkey == "[H" || $fullkey == "OH" || $fullkey == "O1" ]]; then # home
             col=0
-            colmem=$col
             unk=0
         fi
         if [[ $unk == 1 ]]; then
@@ -152,7 +142,6 @@ while true; do
                 IFS= read -rsn3 -t 0.05 nukey
                 if [[ $nukey == "~" ]]; then # home
                     col=0
-                    colmem=$col
                     unk=0
                 elif [[ (( $nukey == ";5C" )) || (( $nukey == "C" )) ]]; then # ctrl right / alt right
                     line=${lines[row]}
@@ -167,7 +156,6 @@ while true; do
                     do
                         col=$((col+1)) ; charkind "${line:col:1}" ; kind2=$?
                     done
-                    colmem=$col
                 elif [[ (( (( $nukey == ";5D" )) || (( $nukey == "D" )) )) && (( $col -gt 0 )) ]]; then # ctrl left / alt left
                     line=${lines[row]}
                     charkind "${line:$((col-1)):1}"
@@ -181,9 +169,14 @@ while true; do
                     do
                         col=$((col-1)) ; charkind "${line:$((col-1)):1}" ; kind2=$?
                     done
-                    colmem=$col
                 fi
             fi
+        fi
+        if [[ $startrow -ne $row ]]; then
+            col=$colmem
+            offs=0
+        elif [[ $startcol -ne $col ]]; then
+            colmem=$col
         fi
     elif [[ $key == $'\x0F' ]]; then
         clear
