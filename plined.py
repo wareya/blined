@@ -128,12 +128,11 @@ def main():
         start_time = time.time()
         data = ""
         
-        if rawdata != "":
-            while len(data) < n and rawdata != "":
-                data += rawdata[0]
-                rawdata = rawdata[1:]
-            if len(data) == n:
-                return data
+        while len(data) < n and rawdata != "":
+            data += rawdata[0]
+            rawdata = rawdata[1:]
+        if len(data) == n:
+            return data
         
         try:
             while len(rawdata) < n and timeout - (time.time() - start_time) > 0:
@@ -150,15 +149,11 @@ def main():
                     rawdata += ''.join([chr(x) for x in msvcrt.getch()])
                 time.sleep(0.001)
         
-        if rawdata != "":
-            while len(data) < n and rawdata != "":
-                data += rawdata[0]
-                rawdata = rawdata[1:]
-            if len(data) == n:
-                return data
+        while len(data) < n and rawdata != "":
+            data += rawdata[0]
+            rawdata = rawdata[1:]
         
-        
-        return rawdata
+        return data
 
     def read_single_char():
         c = read_input(1)
@@ -230,11 +225,11 @@ def main():
                 if which == "":
                     if fullkey == "[1" or fullkey == '\x1b[' or fullkey == "OC" or fullkey == "OD":
                         nukey = read_input(3)
-                        if nukey == "~" or nukey == "":
+                        if nukey == "~" or (fullkey == "[1" and nukey == ""):
                             which = "home"
-                        elif nukey == ";5C" or nukey == "C":
+                        elif nukey == ";5C" or nukey == "C" or fullkey == "OC":
                             which = "ctrlright"
-                        elif (nukey == ";5D" or nukey == "D") and col > 0:
+                        elif (nukey == ";5D" or nukey == "D" or fullkey == "OD") and col > 0:
                             which = "ctrlleft"
                 
                 if which == "delete":
@@ -284,7 +279,7 @@ def main():
                 elif startcol != col:
                     colmem = col
                 
-                dummyvar = read_input(1)
+                dummyvar = read_input(9)
                 
             elif key == '\x0F':  # Ctrl+o
                 clear()
