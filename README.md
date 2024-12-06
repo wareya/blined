@@ -27,6 +27,17 @@ chmod +x blined.sh
 
 https://github.com/user-attachments/assets/9018f18b-5277-44fb-ba27-5efb49e8e70f
 
+or, if only python3 is available:
+
+```
+# download
+curl https://raw.githubusercontent.com/wareya/blined/refs/heads/main/blined.sh > blined.sh
+# make executable (on linux/mac os)
+chmod +x blined.sh
+# use
+./blined.sh <filename> [-s]`
+```
+
 ## installation on systems with no network access or shared filesystem, but with working remote keyboard input
 
 e.g. busted KVMs, VPS interfaces, or virtual machines, where you can "paste" (or emulate a "paste")
