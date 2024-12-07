@@ -213,10 +213,10 @@ while true; do
                     kind=$?
                     kind2=$kind
                     while [ $kind = $kind2 ] && [ $col -lt ${#line} ]; do # move until different kind is hit
-                        col=$((col+1)) ; charkind "${line:col:1}" ; kind2=$?
+                        col=$((col+1)) ; charkind "$(echo "$line" | cut -c "$(($col+1))")" ; kind2=$?
                     done
                     while [ $kind != 2 ] && [ $kind2 = 2 ] && [ $col -lt ${#line} ]; do # skip repeating spaces if didn't start on space
-                        col=$((col+1)) ; charkind "${line:col:1}" ; kind2=$?
+                        col=$((col+1)) ; charkind "$(echo "$line" | cut -c "$(($col+1))")" ; kind2=$?
                     done
                 elif { [ "$nukey" = ";5D" ] || [ "$nukey" = "D" ]; } && [ "$col" -gt 0 ]; then # ctrl left / alt left
                     eval line="\$lines_$row"
@@ -224,11 +224,14 @@ while true; do
                     kind=$?
                     kind2=$kind
                     while [ $kind = $kind2 ] && [ $col -gt 0 ]; do # move until different kind is hit
-                        col=$((col-1)) ; charkind "${line:$((col-1)):1}" ; kind2=$?
+                        col=$((col-1)) ; charkind "$(echo "$line" | cut -c "$(($col+1))")" ; kind2=$?
                     done
                     while [ $kind != 2 ] && [ $kind2 = 2 ] && [ $col -gt 0 ]; do # skip repeating spaces if didn't start on space
-                        col=$((col-1)) ; charkind "${line:$((col-1)):1}" ; kind2=$?
+                        col=$((col-1)) ; charkind "$(echo "$line" | cut -c "$(($col+1))")" ; kind2=$?
                     done
+                    if [ $col -ne 0 ]; then
+                        col=$((col+1))
+                    fi
                 fi
             fi
         fi
