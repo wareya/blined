@@ -330,7 +330,7 @@ while true; do
     
     if [ $row -lt 0 ]; then
         row=0
-    elif [ $row -gt $linecount ]; then
+    elif [ $row -ge $linecount ]; then
         row=$((linecount - 1))
     fi
     
