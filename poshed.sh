@@ -161,7 +161,7 @@ getchars
 
 while true; do
     getchars_notimeout
-    chars=$retval
+    chars="$retval"
     
     key="$(printf "%s" "$chars" | cut -c -1)"
     chars="$(printf "%s" "$chars" | cut -c 2-)"
@@ -241,7 +241,7 @@ while true; do
         elif [ $startcol -ne $col ]; then
             colmem=$col
         fi
-    elif [ "$key" = "$(printf '\x0F')" ]; then
+    elif [ "$key" = "$(printf "\017")" ]; then
         clear
         echo -n "Saving file..."
         
